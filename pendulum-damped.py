@@ -4,43 +4,56 @@ import numpy as np
 import math
 import time
 
-def pendulum(Xs = [0.5, 9.5], Ys = [0, 0.01], frames = 150, num_linspace = 10000):
+#preliminar stage
+theta = math.pi/2
+angular = 0
+t_prev = time.time()
+
+def pendulum():
     fig = plt.figure()
     ax = fig.gca()
-    xs = np.linspace(Xs[0], Xs[1], frames)
-    ys = np.linspace(Ys[0], Ys[1], frames)
 
     g = 9.81
     R = 2
     m = 1
-    k = 10
-
-    theta = 0
-    angular = 0
-    t = time.time()
-    alpha = (math.sin(theta)*(k/m - angular**2))/(math.cos(theta) + (k*R)/(g*m) -1)
-    angular = alpha*(time.time() - t) - angular
-    theta = angular*(time.time() - t) - theta
+    k = 100
     
-    x = g*math.sin(theta)/alpha - R
-    
-    def frame(t):
+    def animate(step):
+        global theta, angular, t_prev
         ax.clear()
-        plt.xlim(-.5, 10)
-        plt.ylim(-5, 1)
+        plt.xlim(-R, R)
+        plt.ylim(-(R + 1), 1)
 
-        x = np.linspace(0, xs[t], num_linspace)
-        y = catenaria(x, B = [xs[t], ys[t]], L = 10)
+        t = time.time()
+        t_diff = t - t_prev
+        alpha = (math.sin(theta)*(k/m - angular**2))/(-math.cos(theta) + (k*R)/(g*m))
+        angular = alpha*t_diff + angular
+        theta = angular*t_diff + theta
+        t_prev = t
+
+        x_ = g*math.sin(theta)/alpha**2 - R
+        x = (angular**2 *R - g*(math.cos(theta))) / (k/m - angular**2)
+        print(x_, x)
+
+        x1 = (R+x)*math.sin(theta)
+        y1 = (R+x)*math.cos(theta)
+        x2 = R*math.sin(theta)
+        y2 = R*math.cos(theta)
+        X = [0, x1]
+        Y = [0, y1]
+        plt.plot(X, Y)
+        plt.plot(x1, y1, 'bo', markersize = 10)
+        plt.plot(x2, y2, 'ro')
+
+
         
-        plt.plot(x,y)
-        
-    T = np.arange(frames)
-    anim = animation.FuncAnimation(fig, frame, T)
+    steps = np.arange(500)
+    anim = animation.FuncAnimation(fig, animate, frames = steps, interval = 1)
     writergif = animation.PillowWriter(fps=30)
-    anim.save('animation_chain.gif',writer=writergif)
-
-    plt.show()
-
+    anim.save('animation_pendulum_damped.gif',writer=writergif)
+    
+    
+pendulum()
 
 #def damper(coordinates = {"begin":[0,0], "end":[2,2]}, coils = 10):
     
