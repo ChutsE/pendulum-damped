@@ -16,13 +16,13 @@ def pendulum():
     g = 9.81
     R = 2
     m = 1
-    k = 100
+    k = 80
     
     def animate(step):
         global theta, angular, t_prev
         ax.clear()
         plt.xlim(-R, R)
-        plt.ylim(-(R + 1), 1)
+        plt.ylim(-(R + 1), 0)
 
         t = time.time()
         t_diff = t - t_prev
